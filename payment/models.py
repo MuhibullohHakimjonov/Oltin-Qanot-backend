@@ -10,3 +10,6 @@ class Order(models.Model):
 	total_cost = models.IntegerField()
 	payment_method = models.CharField(max_length=255)
 	is_paid = models.BooleanField(default=False)
+
+	def __str__(self):
+		return self.customer_name

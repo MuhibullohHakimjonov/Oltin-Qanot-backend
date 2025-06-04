@@ -11,7 +11,7 @@ environ.Env.read_env(BASE_DIR / '.env')
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = ['*']
 
@@ -26,8 +26,10 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	'click_up',
 	'corsheaders',
 	'rest_framework',
+	# Inner apps
 	'user',
 	'payment',
 	'volunteer'
@@ -119,6 +121,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = 'static'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -127,3 +133,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ESKIZ_EMAIL = env('ESKIZ_EMAIL')
 ESKIZ_PASSWORD = env('ESKIZ_PASSWORD')
+
+CLICK_SETTINGS = {
+	'service_id': env('SERVICE_ID'),
+	'merchant_id': env('MERCHANT_ID'),
+	'secret_key': env('SECRET_KEY'),
+	'merchant_user_id': env('MERCHANT_USER_ID')
+
+}
+CLICK_ACCOUNT_MODEL = "payment.models.Order"
+CLICK_AMOUNT_FIELD = "total_cost"
