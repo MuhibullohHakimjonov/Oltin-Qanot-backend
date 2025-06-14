@@ -29,10 +29,12 @@ INSTALLED_APPS = [
 	'click_up',
 	'corsheaders',
 	'rest_framework',
+	'drf_spectacular',
 	# Inner apps
 	'user',
 	'payment',
-	'volunteer'
+	'volunteer',
+	'custom_admin'
 ]
 
 MIDDLEWARE = [
@@ -95,7 +97,8 @@ AUTH_USER_MODEL = 'user.User'
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
 		'rest_framework_simplejwt.authentication.JWTAuthentication',
-	)
+	),
+	'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
@@ -143,3 +146,22 @@ CLICK_SETTINGS = {
 }
 CLICK_ACCOUNT_MODEL = "payment.models.Order"
 CLICK_AMOUNT_FIELD = "total_cost"
+
+CACHES = {
+	"default": {
+		"BACKEND": "django_redis.cache.RedisCache",
+		"LOCATION": "redis://localhost:6379/1",
+		"OPTIONS": {
+			"CLIENT_CLASS": "django_redis.client.DefaultClient",
+		}
+	}
+}
+
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'My Project API',
+    'DESCRIPTION': 'My project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

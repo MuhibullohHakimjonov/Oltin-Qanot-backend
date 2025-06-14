@@ -1,4 +1,5 @@
 from click_up.views import ClickWebhook
+from drf_spectacular.utils import extend_schema
 from rest_framework.response import Response
 from click_up import ClickUp
 from config import settings
@@ -38,6 +39,7 @@ class ClickWebhookAPIView(ClickWebhook):
 		print(f"payment cancelled params: {params}")
 
 
+@extend_schema(request=OrderCreateSerializer, responses=OrderCreateSerializer)
 class OrderCreateView(APIView):
 	serializers_class = OrderCreateSerializer
 

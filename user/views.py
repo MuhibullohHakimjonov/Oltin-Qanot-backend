@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from .serializers import (
 	VolunteerRegisterSerializer, InvestorSerializer, VolunteerSerializer
 )
 from .services import send_verification_sms, verify_code
+
 
 
 class RequestCodeView(APIView):
@@ -29,10 +31,11 @@ class ConfirmCodeView(APIView):
 	def post(self, request):
 		serializer = CodeVerificationSerializer(data=request.data)
 		if serializer.is_valid():
-			phone = serializer.validated_data['phone_number']
+			phone = serializer.validated_data['phone_number'].replace('+', '')
 			code = serializer.validated_data['code']
 
 			if verify_code(phone, code):
+				cache.set(f"verified_{phone}", True, timeout=300)
 				return Response({"message": "Phone number verified successfully"}, status=200)
 			return Response({"error": "Invalid or expired code"}, status=400)
 		return Response(serializer.errors, status=400)

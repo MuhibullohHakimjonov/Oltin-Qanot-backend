@@ -1,9 +1,8 @@
+from django.core.cache import cache
 from rest_framework import serializers
-from django.utils import timezone
-from datetime import timedelta
 from django.contrib.auth.password_validation import validate_password
 
-from .models import User, Investor, Volunteer, PhoneVerification
+from .models import User, Investor, Volunteer
 
 
 class PhoneVerificationSerializer(serializers.Serializer):
@@ -29,12 +28,9 @@ class InvestorRegisterSerializer(serializers.ModelSerializer):
 			raise serializers.ValidationError({"confirm_password": "Passwords must match"})
 
 		phone = data['phone_number'].replace('+', '')
-		try:
-			pv = PhoneVerification.objects.get(phone_number=phone)
-			if not pv.is_verified or pv.created_at < timezone.now() - timedelta(minutes=5):
-				raise serializers.ValidationError({"phone_number": "Phone number is not verified or code expired"})
-		except PhoneVerification.DoesNotExist:
-			raise serializers.ValidationError({"phone_number": "Phone number is not verified"})
+
+		if not cache.get(f"verified_{phone}"):
+			raise serializers.ValidationError({"phone_number": "Phone number is not verified or code expired"})
 
 		return data
 
@@ -46,7 +42,7 @@ class InvestorRegisterSerializer(serializers.ModelSerializer):
 		user = User.objects.create_user(phone_number=phone, password=password)
 		investor = Investor.objects.create(user=user, **validated_data)
 
-		PhoneVerification.objects.filter(phone_number=phone).delete()  # Очистить верификацию после успешной регистрации
+		cache.delete(f"verified_{phone}")
 
 		return investor
 
@@ -58,20 +54,14 @@ class VolunteerRegisterSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Volunteer
-		fields = ['phone_number', 'password', 'confirm_password', 'name', 'surname', 'date_of_birth', 'address',
-				  'gender']
-
+		fields = ['phone_number', 'password', 'confirm_password', 'name', 'surname',
+				  'date_of_birth', 'address', 'gender']
 	def validate(self, data):
 		if data['password'] != data['confirm_password']:
 			raise serializers.ValidationError({"confirm_password": "Passwords must match"})
-
 		phone = data['phone_number'].replace('+', '')
-		try:
-			pv = PhoneVerification.objects.get(phone_number=phone)
-			if not pv.is_verified or pv.created_at < timezone.now() - timedelta(minutes=5):
-				raise serializers.ValidationError({"phone_number": "Phone number is not verified or code expired"})
-		except PhoneVerification.DoesNotExist:
-			raise serializers.ValidationError({"phone_number": "Phone number is not verified"})
+		if not cache.get(f"verified_{phone}"):
+			raise serializers.ValidationError({"phone_number": "Phone number is not verified or code expired"})
 
 		return data
 
@@ -79,11 +69,9 @@ class VolunteerRegisterSerializer(serializers.ModelSerializer):
 		phone = validated_data.pop('phone_number').replace('+', '')
 		password = validated_data.pop('password')
 		validated_data.pop('confirm_password')
-
 		user = User.objects.create_user(phone_number=phone, password=password)
 		volunteer = Volunteer.objects.create(user=user, **validated_data)
-
-		PhoneVerification.objects.filter(phone_number=phone).delete()
+		cache.delete(f"verified_{phone}")
 
 		return volunteer
 
