@@ -15,7 +15,6 @@ from .serializers import (
 from .services import send_verification_sms, verify_code
 
 
-
 class RequestCodeView(APIView):
 	def post(self, request):
 		serializer = PhoneVerificationSerializer(data=request.data)
@@ -99,3 +98,24 @@ class VolunteerProfileView(APIView):
 			serializer.save()
 			return Response(serializer.data)
 		return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MeProfileView(APIView):
+	permission_classes = [IsAuthenticated]
+
+	def get(self, request):
+		user = request.user
+		try:
+			investor = Investor.objects.get(user=user)
+			serializer = InvestorSerializer(investor)
+			return Response({'role': 'investor', 'profile': serializer.data})
+		except Investor.DoesNotExist:
+			pass
+		try:
+			volunteer = Volunteer.objects.get(user=user)
+			serializer = VolunteerSerializer(volunteer)
+			return Response({'role': 'volunteer', 'profile': serializer.data})
+		except Volunteer.DoesNotExist:
+			pass
+
+		return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)

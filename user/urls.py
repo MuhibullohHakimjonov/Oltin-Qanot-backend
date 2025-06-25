@@ -8,7 +8,7 @@ from .views import (
 	RequestCodeView,
 	ConfirmCodeView,
 	InvestorRegisterView,
-	VolunteerRegisterView, InvestorProfileView, VolunteerProfileView
+	VolunteerRegisterView, InvestorProfileView, VolunteerProfileView, MeProfileView
 )
 
 urlpatterns = [
@@ -19,4 +19,6 @@ urlpatterns = [
 	path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 
 	path('investors/<int:pk>/', InvestorProfileView.as_view(), name='investor-profile'),
-	path('volunteers/<int:pk>/', VolunteerProfileView.as_view(), name='volunteer-profile'), ]
+	path('volunteers/<int:pk>/', VolunteerProfileView.as_view(), name='volunteer-profile'),
+	path('me/', MeProfileView.as_view(), name='me-profile'),
+]
