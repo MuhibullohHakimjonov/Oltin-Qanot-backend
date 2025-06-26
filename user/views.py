@@ -61,7 +61,12 @@ class VolunteerRegisterView(APIView):
 class InvestorProfileView(APIView):
 	permission_classes = [IsAuthenticated]
 
-	def get(self, request, pk):
+	def get(self, request, pk=None):
+		if pk is None:
+			investors = Investor.objects.all()
+			serializer = InvestorSerializer(investors, many=True)
+			return Response(serializer.data)
+
 		investor = get_object_or_404(Investor, pk=pk)
 		serializer = InvestorSerializer(investor)
 		return Response(serializer.data)
@@ -82,7 +87,12 @@ class InvestorProfileView(APIView):
 class VolunteerProfileView(APIView):
 	permission_classes = [IsAuthenticated]
 
-	def get(self, request, pk):
+	def get(self, request, pk=None):
+		if pk is None:
+			volunteers = Volunteer.objects.all()
+			serializer = VolunteerSerializer(volunteers, many=True)
+			return Response(serializer.data)
+
 		volunteer = get_object_or_404(Volunteer, pk=pk)
 		serializer = VolunteerSerializer(volunteer)
 		return Response(serializer.data)

@@ -20,5 +20,7 @@ urlpatterns = [
 
 	path('investors/<int:pk>/', InvestorProfileView.as_view(), name='investor-profile'),
 	path('volunteers/<int:pk>/', VolunteerProfileView.as_view(), name='volunteer-profile'),
+	path('investors/', InvestorProfileView.as_view()),
+	path('volunteers/', VolunteerProfileView.as_view()),
 	path('me/', MeProfileView.as_view(), name='me-profile'),
 ]
