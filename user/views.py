@@ -115,17 +115,52 @@ class MeProfileView(APIView):
 
 	def get(self, request):
 		user = request.user
-		try:
-			investor = Investor.objects.get(user=user)
-			serializer = InvestorSerializer(investor)
-			return Response({'role': 'investor', 'profile': serializer.data})
-		except Investor.DoesNotExist:
-			pass
-		try:
-			volunteer = Volunteer.objects.get(user=user)
-			serializer = VolunteerSerializer(volunteer)
-			return Response({'role': 'volunteer', 'profile': serializer.data})
-		except Volunteer.DoesNotExist:
-			pass
 
-		return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+		# Попробуем получить обе роли
+		investor = Investor.objects.filter(user=user).first()
+		volunteer = Volunteer.objects.filter(user=user).first()
+
+		if not investor and not volunteer:
+			return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+		# Определяем основную роль
+		if investor:
+			role = 'investor'
+		else:
+			role = 'volunteer'
+
+		# Сериализуем каждую роль, если есть
+		investor_data = InvestorSerializer(investor).data if investor else {
+			"id": None,
+			"user": None,
+			"company_name": None,
+			"inn": None,
+			"address": None,
+			"company_owner": None,
+			"company_email": None,
+			"company_website": None
+		}
+
+		volunteer_data = VolunteerSerializer(volunteer).data if volunteer else {
+			"id": None,
+			"user": None,
+			"name": None,
+			"surname": None,
+			"date_of_birth": None,
+			"address": None,
+			"gender": None,
+			"profile_pic": None,
+			"email": None,
+			"passport_num": None
+		}
+
+		# Объединение полей обеих ролей
+		merged_profile = {
+			**investor_data,
+			**{k: v for k, v in volunteer_data.items() if k != 'user'}
+		}
+
+		return Response({
+			'role': role,
+			'profile': merged_profile
+		})
