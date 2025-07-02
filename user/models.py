@@ -47,6 +47,9 @@ class Investor(models.Model):
 	company_owner = models.CharField(max_length=255, blank=True, null=True)
 	company_email = models.EmailField(blank=True, null=True)
 	company_website = models.CharField(max_length=255, blank=True, null=True)
+	telegram = models.CharField(max_length=255)
+	facebook = models.CharField(max_length=255)
+	instagram = models.CharField(max_length=255)
 
 	def __str__(self):
 		return self.company_name
@@ -66,6 +69,9 @@ class Volunteer(models.Model):
 	gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
 	email = models.EmailField(blank=True, null=True)
 	passport_num = models.CharField(max_length=9)
+	telegram = models.CharField(max_length=255)
+	facebook = models.CharField(max_length=255)
+	instagram = models.CharField(max_length=255)
 
 	def __str__(self):
 		return f"{self.name} {self.surname}"

@@ -56,6 +56,7 @@ class VolunteerRegisterSerializer(serializers.ModelSerializer):
 		model = Volunteer
 		fields = ['phone_number', 'password', 'confirm_password', 'name', 'surname',
 				  'date_of_birth', 'address', 'gender']
+
 	def validate(self, data):
 		if data['password'] != data['confirm_password']:
 			raise serializers.ValidationError({"confirm_password": "Passwords must match"})
@@ -87,7 +88,8 @@ class InvestorSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Investor
-		fields = ['id', 'user', 'company_name', 'inn', 'address', 'company_owner', 'company_email', 'company_website']
+		fields = ['id', 'user', 'company_name', 'inn', 'address', 'company_owner', 'company_email', 'company_website',
+				  'telegram', 'facebook', 'instagram']
 
 	def update(self, instance, validated_data):
 		user_data = validated_data.pop('user', {})
@@ -107,7 +109,7 @@ class VolunteerSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Volunteer
 		fields = ['id', 'user', 'name', 'surname', 'date_of_birth', 'address',
-				  'gender', 'profile_pic', 'email', 'passport_num']
+				  'gender', 'profile_pic', 'email', 'passport_num', 'telegram', 'facebook', 'instagram']
 
 	def update(self, instance, validated_data):
 		user_data = validated_data.pop('user', {})

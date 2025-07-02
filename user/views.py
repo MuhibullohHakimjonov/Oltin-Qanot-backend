@@ -122,10 +122,8 @@ class MeProfileView(APIView):
 		if not investor and not volunteer:
 			return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-		# Основная роль
 		role = 'investor' if investor else 'volunteer'
 
-		# Получаем сериализованные данные, если объект есть, иначе заполняем None
 		investor_data = InvestorSerializer(investor).data if investor else {
 			"id": None,
 			"user": {"id": user.id, "phone_number": user.phone_number},
@@ -148,13 +146,43 @@ class MeProfileView(APIView):
 			"passport_num": None
 		}
 
-		# Объединяем всё в один профиль
 		merged_profile = {
 			**investor_data,
-			**{k: v for k, v in volunteer_data.items() if k != 'user'}  # user не затираем
+			**{k: v for k, v in volunteer_data.items() if k != 'user'}
 		}
 
 		return Response({
 			'role': role,
 			'profile': merged_profile
 		})
+
+	def put(self, request):
+		user = request.user
+
+		investor = Investor.objects.filter(user=user).first()
+		volunteer = Volunteer.objects.filter(user=user).first()
+
+		if not investor and not volunteer:
+			return Response({'detail': 'Profile not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+		updated_data = {}
+
+		# Обновляем профиль инвестора, если он есть
+		if investor:
+			serializer = InvestorSerializer(investor, data=request.data, partial=True)
+			if serializer.is_valid():
+				serializer.save()
+				updated_data.update(serializer.data)
+			else:
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		# Обновляем профиль волонтёра, если он есть
+		if volunteer:
+			serializer = VolunteerSerializer(volunteer, data=request.data, partial=True)
+			if serializer.is_valid():
+				serializer.save()
+				updated_data.update(serializer.data)
+			else:
+				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+		return Response({'detail': 'Profile updated successfully', 'profile': updated_data})
