@@ -1,5 +1,6 @@
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,7 +11,7 @@ from .serializers import (
 	PhoneVerificationSerializer,
 	CodeVerificationSerializer,
 	InvestorRegisterSerializer,
-	VolunteerRegisterSerializer, InvestorSerializer, VolunteerSerializer
+	VolunteerRegisterSerializer, InvestorSerializer, VolunteerSerializer, MeProfileUpdateSerializer
 )
 from .services import send_verification_sms, verify_code
 
@@ -156,6 +157,10 @@ class MeProfileView(APIView):
 			'profile': merged_profile
 		})
 
+	@extend_schema(
+		request=MeProfileUpdateSerializer,
+		responses={200: MeProfileUpdateSerializer},
+	)
 	def put(self, request):
 		user = request.user
 
@@ -167,7 +172,6 @@ class MeProfileView(APIView):
 
 		updated_data = {}
 
-		# Обновляем профиль инвестора, если он есть
 		if investor:
 			serializer = InvestorSerializer(investor, data=request.data, partial=True)
 			if serializer.is_valid():
@@ -176,7 +180,6 @@ class MeProfileView(APIView):
 			else:
 				return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-		# Обновляем профиль волонтёра, если он есть
 		if volunteer:
 			serializer = VolunteerSerializer(volunteer, data=request.data, partial=True)
 			if serializer.is_valid():

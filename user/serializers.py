@@ -121,3 +121,28 @@ class VolunteerSerializer(serializers.ModelSerializer):
 			setattr(instance, attr, value)
 		instance.save()
 		return instance
+
+
+
+
+
+class MeProfileUpdateSerializer(serializers.Serializer):
+	# Investor fields
+	company_name = serializers.CharField(required=False, allow_blank=True)
+	inn = serializers.CharField(required=False, allow_blank=True)
+	address = serializers.CharField(required=False, allow_blank=True)
+	company_owner = serializers.CharField(required=False, allow_blank=True)
+	company_email = serializers.EmailField(required=False, allow_blank=True)
+	company_website = serializers.URLField(required=False, allow_blank=True)
+	facebook = serializers.CharField(required=False, allow_blank=True)
+	telegram = serializers.CharField(required=False, allow_blank=True)
+	instagram = serializers.CharField(required=False, allow_blank=True)
+
+	# Volunteer fields
+	name = serializers.CharField(required=False, allow_blank=True)
+	surname = serializers.CharField(required=False, allow_blank=True)
+	date_of_birth = serializers.DateField(required=False)
+	gender = serializers.ChoiceField(choices=["male", "female"], required=False)
+	profile_pic = serializers.ImageField(required=False)
+	email = serializers.EmailField(required=False, allow_blank=True)
+	passport_num = serializers.CharField(required=False, allow_blank=True)
